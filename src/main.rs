@@ -1,12 +1,18 @@
-use std::{error::Error as StdError, fs::{self, File}, collections::HashMap, sync::Arc, io::Write};
+#![allow(dead_code)]
+#![allow(unused_variables)]
+
+use std::{
+    error::Error as StdError,
+    fs::{self, File},
+    io::Write,
+    sync::Arc,
+};
 use serde::{Deserialize, Serialize};
-use serde_json;
-use futures::future::{try_join_all, join_all};
+use futures::future::{try_join_all};
 use tokio::try_join;
 use liquid::{self, model::Value, Object};
 use toml;
-
-use reqwest::{Client, Error as ReqwestError};
+use reqwest::{Client};
 
 type DbPool = sqlx::SqlitePool;
 
@@ -16,11 +22,6 @@ struct RenderableStudent {
     full_name: String,
     gpa: f64,
     flags: Vec<String>,
-}
-
-struct TemplateRenderGlobals {
-    name: String,
-    students: Vec<RenderableStudent>
 }
 
 #[derive(Deserialize, Debug, Clone)]
