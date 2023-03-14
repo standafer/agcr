@@ -1,0 +1,18 @@
+[[timed_reports]]
+    report_label = "demo"
+    every = "0 8 * * 1"
+    to = ["photosouup@mitacadey.org"]
+    template = "demo"
+    student_ids = [
+        99400010,
+    ]
+    [[timed_reports.flags]]
+        min_gpa = 0.0
+        max_gpa = 2.5
+        priority = 255
+        level = "critical"
+    [[timed_reports.flags]]
+        min_gpa = 2.5
+        max_gpa = 3
+        priority = 254
+        level = "warning"

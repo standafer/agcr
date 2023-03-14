@@ -1,0 +1,18 @@
+<style>
+    * {
+        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    }
+    .critical { color: red; }
+    .warning { color: orange; }
+</style>
+
+<h1>Hello, {{ name }}.</h1>
+<p>You are receiving this email because you are a part of the <b>Mare Island Technology Academy Athletic Department</b>. If you would like to unsubscribe from this list, please contact Christopher Owens.</p>
+<h3>GRADE REPORT</h3>
+<ul>
+    {% for student in students %}
+        <li class="{{ student.flags | join: ", " }}">
+            {{ student.fullName }} - GPA: {{ student.gpa }}
+        </li> 
+    {% endfor %}
+</ul>
