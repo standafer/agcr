@@ -5,10 +5,9 @@ use std::{
     error::Error as StdError,
     fs::{self, File},
     io::Write,
-    sync::Arc,
 };
 use serde::{Deserialize, Serialize};
-use futures::future::{try_join_all};
+use futures::future::{join_all};
 use tokio::try_join;
 use liquid::{self, model::Value, Object};
 use toml;
@@ -26,7 +25,7 @@ struct RenderableStudent {
 
 #[derive(Deserialize, Debug, Clone)]
 struct GpaResponse {
-    #[serde(rename = "GPA_GradeReportingTotal")]
+    #[serde(rename = "GPA_GradeReportingAcademicNonWeighted")]
     gpa_grade_reporting_total: f64,
 }
 
@@ -80,15 +79,13 @@ fn get_urls_for_id(id: u32) -> (String, String) {
     (gpa_url, info_url)
 }
 
-
-
 async fn fetch_students_gpa_and_info(
     ids: Vec<u32>,
 ) -> Result<Vec<(NameResponse, GpaResponse)>, Box<dyn StdError + Send + Sync>> {
-    let client = Arc::new(Client::new());
+    let client = Client::new();
 
     let fetch_futures = ids.into_iter().map(|id| {
-        let client = Arc::clone(&client);
+        let client = &client;
         async move {
             let (gpa_url, info_url) = get_urls_for_id(id);
             let gpa_future = client.get(&gpa_url).send();
@@ -105,10 +102,8 @@ async fn fetch_students_gpa_and_info(
         }
     });
 
-    let results: Result<Vec<(NameResponse, GpaResponse)>, Box<dyn StdError + Send + Sync>> =
-        try_join_all(fetch_futures).await;
-
-    results
+    let results = join_all(fetch_futures).await;
+    results.into_iter().collect()
 }
 
 
@@ -182,7 +177,7 @@ async fn main() {
             )
         }
 
-        let rendered_template = render_template(&timed_report.template, "Mr. Smith".to_string(), &renderable_students).await.unwrap();
+        let rendered_template = render_template(&timed_report.template, "Mr. Wee".to_string(), &renderable_students).await.unwrap();
         // export into html file
         let mut file = File::create(format!("{}.html", timed_report.template)).unwrap();
         file.write_all(rendered_template.as_bytes()).unwrap();
